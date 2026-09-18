@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Summit NTTN - 24-Hour Predictive Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f4f9; padding: 20px; }
+        .card { max-width: 800px; background: white; padding: 30px; margin: auto; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #004080; text-align: center; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; background: #fff; }
+        button { background: #007BFF; color: white; border: none; padding: 12px; width: 100%; cursor: pointer; font-size: 16px; border-radius: 5px; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #0056b3; }
+        .result-box { margin-top: 25px; padding: 20px; background: #e9ecef; border-radius: 8px; border-left: 5px solid #007BFF; }
+        .result-box h3 { margin-top: 0; color: #333; }
+        .alert-red { color: #d9534f; font-weight: bold; }
+        .alert-green { color: #5cb85c; font-weight: bold; }
+
+        /* 2nd Image Style Curved Network Topology Box */
+        .topology-box {
+            margin-top: 20px;
+            background: #121218;
+            border-radius: 12px;
+            padding: 20px;
+            color: #fff;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            text-align: center;
+        }
+        .topology-header {
+            font-size: 13px;
+            color: #00d2ff;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+        }
+        svg {
+            width: 100%;
+            height: 160px;
+        }
+        .path-bg {
+            fill: none;
+            stroke: #22223b;
+            stroke-width: 3;
+        }
+        .path-active {
+            fill: none;
+            stroke-width: 4;
+            stroke-dasharray: 10, 10;
+            animation: dashMove 1s linear infinite;
+        }
+        @keyframes dashMove {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+        .legend-status {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>📡 Summit NTTN 24-Hour AI Predictive Monitoring</h2>
+    
+    <div class="form-group">
+        <label>Tower Number:</label>
+        <select id="tower_id">
+            <option value="1">Tower 1</option>
+            <option value="2">Tower 2</option>
+            <option value="3">Tower 3</option>
+            <option value="4">Tower 4</option>
+            <option value="5">Tower 5</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Current Connected Users (50 - 999):</label>
+        <input type="number" id="users_connected" value="100" min="50" max="999">
+    </div>
+    
+    <div class="form-group">
+        <label>Current Download Speed (Mbps, Range: 5 - 100):</label>
+        <input type="number" id="download_speed" value="80" min="5.0" max="100.0" step="0.1">
+    </div>
+    
+    <div class="form-group">
+        <label>Current Upload Speed (Mbps, Range: 1 - 50):</label>
+        <input type="number" id="upload_speed" value="25" min="1.0" max="50.0" step="0.1">
+    </div>
+    
+    <div class="form-group">
+        <label>Current Latency / Ping (ms, Range: 10 - 200):</label>
+        <input type="number" id="latency" value="20" min="10.0" max="200.0" step="0.1">
+    </div>
+    
+    <div class="form-group">
+        <label>Current Weather:</label>
+        <select id="weather">
+            <option value="Clear">Clear</option>
+            <option value="Snow">Snow</option>
+            <option value="Rain">Rain</option>
+            <option value="Storm">Storm</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Target Future Time (AM / PM):</label>
+        <select id="target_hour">
+            <option value="0">12:00 AM (Midnight)</option>
+            <option value="1">01:00 AM</option>
+            <option value="2">02:00 AM</option>
+            <option value="3">03:00 AM</option>
+            <option value="4">04:00 AM</option>
+            <option value="5">05:00 AM</option>
+            <option value="6">06:00 AM</option>
+            <option value="7">07:00 AM</option>
+            <option value="8" selected>08:00 AM</option>
+            <option value="9">09:00 AM</option>
+            <option value="10">10:00 AM</option>
+            <option value="11">11:00 AM</option>
+            <option value="12">12:00 PM (Noon)</option>
+            <option value="13">01:00 PM</option>
+            <option value="14">02:00 PM</option>
+            <option value="15">03:00 PM</option>
+            <option value="16">04:00 PM</option>
+            <option value="17">05:00 PM</option>
+            <option value="18">06:00 PM (Evening)</option>
+            <option value="19">07:00 PM</option>
+            <option value="20">08:00 PM</option>
+            <option value="21">09:00 PM</option>
+            <option value="22">10:00 PM</option>
+            <option value="23">11:00 PM</option>
+        </select>
+    </div>
+    
+    <button onclick="runPrediction()">Run 24-Hour AI Forecast & Check Bypass</button>
+    
+    <div class="result-box" id="result" style="display:none;">
+        <h3>📊 AI Forecast & Self-Healing Report:</h3>
+        <p id="pred_output"></p>
+
+        <!-- 2nd Image Style Curved Live Routing Visualizer -->
+        <div class="topology-box">
+            <div class="topology-header">⚡ Live Optical Path Routing (Source ➔ Tower)</div>
+            
+            <svg viewBox="0 0 600 160">
+                <!-- Background Curved Lines -->
+                <!-- Secondary Path Alpha (Top Curve) -->
+                <path d="M 60 80 Q 300 10 540 80" class="path-bg" />
+                <!-- Primary Trunk Line (Middle Straight/Slight Curve) -->
+                <path d="M 60 80 Q 300 80 540 80" class="path-bg" />
+                <!-- Tertiary Path Beta (Bottom Curve) -->
+                <path d="M 60 80 Q 300 150 540 80" class="path-bg" />
+
+                <!-- Active Animated Data Flow Lines -->
+                <path id="svg_alpha" d="M 60 80 Q 300 10 540 80" class="path-active" style="stroke: transparent;" />
+                <path id="svg_primary" d="M 60 80 Q 300 80 540 80" class="path-active" style="stroke: transparent;" />
+                <path id="svg_beta" d="M 60 80 Q 300 150 540 80" class="path-active" style="stroke: transparent;" />
+
+                <!-- Source Node (Left Circle) -->
+                <circle cx="60" cy="80" r="22" fill="#1f2937" stroke="#00d2ff" stroke-width="3" />
+                <text x="60" y="85" fill="#00d2ff" font-size="11" font-weight="bold" text-anchor="middle">SRC</text>
+
+                <!-- Target Tower Node (Right Circle) -->
+                <circle cx="540" cy="80" r="22" fill="#1f2937" stroke="#00d2ff" stroke-width="3" />
+                <text x="540" y="85" fill="#00d2ff" font-size="11" font-weight="bold" text-anchor="middle">TWR</text>
+            </svg>
+
+            <div class="legend-status">
+                <span id="lbl_alpha" style="color: #6c757d;">Secondary Alpha: Standby</span>
+                <span id="lbl_primary" style="color: #22c55e;">Primary Core: Normal</span>
+                <span id="lbl_beta" style="color: #6c757d;">Tertiary Beta: Standby</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function runPrediction() {
+    const data = {
+        tower_id: document.getElementById('tower_id').value,
+        users_connected: parseFloat(document.getElementById('users_connected').value),
+        download_speed: parseFloat(document.getElementById('download_speed').value),
+        upload_speed: parseFloat(document.getElementById('upload_speed').value),
+        latency: parseFloat(document.getElementById('latency').value),
+        weather: document.getElementById('weather').value,
+        target_hour: parseInt(document.getElementById('target_hour').value)
+    };
+
+    try {
+        const response = await fetch('/predict', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        document.getElementById('result').style.display = 'block';
+        
+        document.getElementById('pred_output').innerHTML = `
+            <b>Target Time:</b> ${result.target_hour === 0 ? '12:00 AM' : result.target_hour < 12 ? result.target_hour + ':00 AM' : (result.target_hour === 12 ? '12:00 PM' : (result.target_hour - 12) + ':00 PM')}<br>
+            <b>Predicted Speed Drop:</b> <span class="alert-red">${result.speed_drop_pct}%</span><br>
+            <b>Predicted Congestion (Jam):</b> <span class="alert-red">${result.congestion_pct}%</span><br>
+            <b>Predicted Speed at Target Time:</b> ${result.predicted_speed} Mbps<br>
+            <b>Required Mbps to Avoid Jam:</b> <span style="color: #0275d8; font-weight: bold;">${result.required_mbps} Mbps</span><br>
+            <b>Line Fault Risk Probability:</b> ${result.fault_risk_pct}%<br>
+            <b>3-Line Data Bypass Status:</b> <span class="${result.bypass ? 'alert-red' : 'alert-green'}">
+                ${result.bypass ? '⚠️ BYPASS REQUIRED (Switch traffic to backup line immediately!)' : '✅ NORMAL (Primary line is sufficient)'}
+            </span>
+        `;
+
+        // SVG Path Selection Elements
+        const svgPrimary = document.getElementById('svg_primary');
+        const svgAlpha = document.getElementById('svg_alpha');
+        const svgBeta = document.getElementById('svg_beta');
+
+        const lblPrimary = document.getElementById('lbl_primary');
+        const lblAlpha = document.getElementById('lbl_alpha');
+        const lblBeta = document.getElementById('lbl_beta');
+
+        // Reset all paths
+        svgPrimary.style.stroke = "transparent";
+        svgAlpha.style.stroke = "transparent";
+        svgBeta.style.stroke = "transparent";
+
+        if (!result.bypass) {
+            // Normal: Green flow through Primary Line
+            svgPrimary.style.stroke = "#22c55e";
+            lblPrimary.style.color = "#22c55e";
+            lblPrimary.innerHTML = "Primary Core: Active (Normal)";
+            
+            lblAlpha.style.color = "#6c757d";
+            lblAlpha.innerHTML = "Secondary Alpha: Standby";
+            
+            lblBeta.style.color = "#6c757d";
+            lblBeta.innerHTML = "Tertiary Beta: Standby";
+        } else {
+            lblPrimary.style.color = "#ef4444";
+            lblPrimary.innerHTML = "Primary Core: Failed / Congested";
+
+            if (result.congestion_pct > 85.0) {
+                // Emergency Red flow through Tertiary Beta Line
+                svgBeta.style.stroke = "#ef4444";
+                lblBeta.style.color = "#ef4444";
+                lblBeta.innerHTML = "Tertiary Beta: Emergency Active";
+                
+                lblAlpha.style.color = "#6c757d";
+                lblAlpha.innerHTML = "Secondary Alpha: Overloaded";
+            } else {
+                // Backup Yellow flow through Secondary Alpha Line
+                svgAlpha.style.stroke = "#eab308";
+                lblAlpha.style.color = "#eab308";
+                lblAlpha.innerHTML = "Secondary Alpha: Backup Active";
+                
+                lblBeta.style.color = "#6c757d";
+                lblBeta.innerHTML = "Tertiary Beta: Standby";
+            }
+        }
+
+    } catch (error) {
+        alert("Prediction failed: " + error);
+    }
+}
+</script>
+</body>
+</html>
