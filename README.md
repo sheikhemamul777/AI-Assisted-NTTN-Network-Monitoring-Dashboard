@@ -29,5 +29,5 @@ To run this project locally on your computer, follow these steps:
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/sheikhemamul777/AI-Assisted-NTTN-Network-Monitoring-Dashboard.git](https://github.com/sheikhemamul777/AI-Assisted-NTTN-Network-Monitoring-Dashboard.git)
-   cd AI-Assisted-NTTN-Network-Monitoring-Dashboard
+   git clone https://github.com/sheikhemamul777/AI-Assisted-NTTN-Network-Monitoring-Dashboard.git
+cd AI-Assisted-NTTN-Network-Monitoring-Dashboard
