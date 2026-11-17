@@ -2,6 +2,8 @@
 
 An end-to-end web application designed to monitor telecom network performance, visualize network paths, and provide predictive traffic forecasting using machine learning.
 
+🌐 **Live Demo:** [AI-Assisted NTTN Network Monitoring Dashboard](https://ai-assisted-nttn-network-monitoring-k5oa.onrender.com)
+
 ## 🚀 Key Features
 * **Real-time Performance Monitoring:** Track telecom network parameters and speed metrics.
 * **Path & Data Visualization:** Interactive dashboards to analyze network conditions.
@@ -12,6 +14,7 @@ An end-to-end web application designed to monitor telecom network performance, v
 * **Backend:** Python, Flask
 * **Machine Learning & Data Analysis:** Scikit-Learn, Pandas, NumPy, Jupyter Notebook
 * **Frontend:** HTML, CSS, JavaScript (via Flask templates)
+* **Deployment:** Render
 
 ## 📁 Project Structure
 * `app.py`: Main Flask application file.
